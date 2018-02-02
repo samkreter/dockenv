@@ -1,11 +1,11 @@
 package main
 
 import (
-	"log"
+	"github.com/samkreter/dockdev/cmd"
 )
 
 func main() {
-	log.Panicln("TEST")
+	cmd.Execute()
 }
 
 // import (
