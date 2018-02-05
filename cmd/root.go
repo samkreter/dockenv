@@ -6,12 +6,11 @@ import (
 	"os"
 
 	"github.com/samkreter/dockdev/util"
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-var config string
+var configPath string
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -23,10 +22,30 @@ to create a local enviorment for development that doesn't use the hosts networki
 
 var create = &cobra.Command{
 	Use:   "create",
-	Short: "Creates a pod or single container.",
+	Short: "Creates a new dev context.",
 	Long: `TODO`,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := util.Create()
+		if (len(args) != 1){
+			log.Fatal("Must provide a name for the context.")
+		}
+
+		err := util.Create(args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+	},
+}
+
+var remove = &cobra.Command{
+	Use:   "remove",
+	Short: "Remvoes a dev context.",
+	Long: `TODO`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if (len(args) != 1){
+			log.Fatal("Must provide a name for the context.")
+		}
+
+		err := util.RemoveContext(args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -39,6 +58,54 @@ var list = &cobra.Command{
 	Long: `TODO`,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := util.List()
+		if err != nil {
+			log.Fatal(err)
+		}
+	},
+}
+
+var show = &cobra.Command{
+	Use:   "show <context>",
+	Short: "Show a  specific context.",
+	Long: `TODO`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if (len(args) != 1){
+			log.Fatal("Must provide a name for the context.")
+		}
+
+		err := util.Show(args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+	},
+}
+
+var add = &cobra.Command{
+	Use:   "add <container>",
+	Short: "Add a container to a context.",
+	Long: `TODO`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if (len(args) != 1){
+			log.Fatal("Must provide a name for the container.")
+		}
+
+		err := util.Show(args[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+	},
+}
+
+var start = &cobra.Command{
+	Use:   "start <context>",
+	Short: "Starts running a dev context.",
+	Long: `TODO`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if (len(args) != 1){
+			log.Fatal("Must provide a name for the context.")
+		}
+
+		err := util.Show(args[0])
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -72,32 +139,28 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	RootCmd.PersistentFlags().StringVar(&config, "config", "", "config file (default is $HOME/.dockdev.yaml)")
+	//RootCmd.PersistentFlags().StringVar(&configPath, "config", filepath.Join(home, ".dockdev"), "config file (default is $HOME/.dockdev)")
 	
 
 	//Add the sub commands
 	RootCmd.AddCommand(create)
+	RootCmd.AddCommand(remove)
+	RootCmd.AddCommand(show)
 	RootCmd.AddCommand(list)
 	RootCmd.AddCommand(clean)
 }
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	// Find home directory.
-	home, err := homedir.Dir()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
 
-	if config != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(config)
-	} else {
-		// Search config in home directory with name ".dockdev" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".dockdev")
-	}
+	// if config != "" {
+	// 	// Use config file from the flag.
+	// 	viper.SetConfigFile(config)
+	// } else {
+	// 	// Search config in home directory with name ".dockdev" (without extension).
+	// 	viper.AddConfigPath(home)
+	// 	viper.SetConfigName(".dockdev")
+	// }
 
 	viper.AutomaticEnv() // read in environment variables that match
 
